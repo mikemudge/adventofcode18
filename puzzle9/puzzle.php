@@ -34,20 +34,23 @@ for ($i=1; $i <= 5; $i++) {
   $currentMarble = $newMarble;
   print_r($firstMarble);
 }
-exit;
-// $currentMarble->prev = &$currentMarble;
-$firstMarble = $currentMarble;
+
+
 // TODO array_splice is too slow for a large number of turns.
 // A linked list would work much better here for adding and removing.
+$firstMarble = new ListNode(0);
+$firstMarble->next = $firstMarble;
+$firstMarble->prev = $firstMarble;
+$currentMarble = $firstMarble;
 $numMarbles = 1;
-for ($i=1; $i <= 25; $i++) {
+for ($i=1; $i <= $turns * 100; $i++) {
   if ($i % 23 === 0) {
     // Do the special thing.
     for ($ii=0; $ii <= 7; $ii++) {
       $currentMarble = $currentMarble->prev;
     }
     $removed = $currentMarble->next;
-    $currentMarble->next->next->prev = &$currentMarble;
+    $currentMarble->next->next->prev = $currentMarble;
     $currentMarble->next = $currentMarble->next->next;
     $currentMarble = $currentMarble->next;
     $numMarbles--;
@@ -63,26 +66,29 @@ for ($i=1; $i <= 25; $i++) {
     // Add in right spot.
     $currentMarble = $currentMarble->next;
     $newMarble = new ListNode($i);
-    $newMarble->prev = &$currentMarble;
+    $newMarble->prev = $currentMarble;
     $newMarble->next = $currentMarble->next;
 
-    $currentMarble->next->prev = &$newMarble;
-    $currentMarble->next = &$newMarble;
+    if ($currentMarble->next) {
+      $currentMarble->next->prev = $newMarble;
+    }
+    $currentMarble->next = $newMarble;
     $currentMarble = $newMarble;
     $numMarbles++;
   }
   if ($i % 10000 === 0) {
     echo("Turn $i of $turns\n");
+    echo(memory_get_usage() . " mem\n");
   }
 
   // Debug print.
-  $curMarble = $firstMarble;
-  echo($curMarble->data);
-  for ($ii=1; $ii < $numMarbles; $ii++) {
-    $curMarble = $curMarble->next;
-    echo("," . $curMarble->data);
-  }
-  echo(" - " . $currentMarble->data . " $numMarbles" . "\n");
+  // $curMarble = $firstMarble;
+  // echo($curMarble->data);
+  // for ($ii=1; $ii < $numMarbles; $ii++) {
+  //   $curMarble = $curMarble->next;
+  //   echo("," . $curMarble->data);
+  // }
+  // echo(" - " . $currentMarble->data . " $numMarbles" . "\n");
 
   if ($i == $turns) {
     echo("Part 1 Complete\n");
