@@ -1,13 +1,9 @@
-<?
+<?php
 class ListNode {
-  /* Data to hold */
   public $data;
-  /* Link to next node */
-  public $next = NULL;
-  /* Link to prev node */
-  public $prev = NULL;
+  public $next = null;
+  public $prev = null;
 
-  /* Node constructor */
   function __construct($data) {
     $this->data = $data;
   }
@@ -24,71 +20,81 @@ $numPlayers = 446;
 $players = array_fill(0, $numPlayers, 0);
 $turns = 71522;
 
-$scoreForTurn = [];
-$currentMarble = new ListNode(0);
-$firstMarble = $currentMarble;
-// $currentMarble->next = &$currentMarble;
-for ($i=1; $i <= 5; $i++) {
-  $newMarble = new ListNode($i);
-  $currentMarble->next = $newMarble;
-  $currentMarble = $newMarble;
-  print_r($firstMarble);
-}
-
-
-// TODO array_splice is too slow for a large number of turns.
-// A linked list would work much better here for adding and removing.
 $firstMarble = new ListNode(0);
-$firstMarble->next = $firstMarble;
-$firstMarble->prev = $firstMarble;
+$firstMarble->next = 0;
+$firstMarble->prev = 0;
 $currentMarble = $firstMarble;
+$marbles[0] = $firstMarble;
 $numMarbles = 1;
+// $scoreForTurn = [];
+//$turns * 100
 for ($i=1; $i <= $turns * 100; $i++) {
+  if ($i % 10000 === 0) {
+    echo("Turn $i of $turns\n");
+    echo(memory_get_peak_usage() . " mem\n");
+  }
+
+  if ($i == 116540) {
+    echo("CurrentMarble " . $currentMarble->data . " $numMarbles" . "\n");
+    // echo("Next Marble " . $currentMarble->next->data . "\n");
+    // echo("Next prev Marble " . $currentMarble->next->prev->data . "\n");
+  }
   if ($i % 23 === 0) {
     // Do the special thing.
     for ($ii=0; $ii <= 7; $ii++) {
-      $currentMarble = $currentMarble->prev;
+      $currentMarble = $marbles[$currentMarble->prev];
     }
-    $removed = $currentMarble->next;
-    $currentMarble->next->next->prev = $currentMarble;
-    $currentMarble->next = $currentMarble->next->next;
-    $currentMarble = $currentMarble->next;
+    $removed = $marbles[$currentMarble->next];
+    // Need to fix this.
+    $after = $marbles[$removed->next];
+    // Skip over the removed one by making current point to after and after point back to current.
+    $after->prev = $currentMarble->data;
+    $currentMarble->next = $after->data;
+    // Then set the current marble to the one after the removed one.
+    $currentMarble = $after;
     $numMarbles--;
 
     unset($removed->next);
     unset($removed->prev);
+    unset($marbles[$removed->data]);
+
     $score = $i + $removed->data;
-    $scoreForTurn[$i] = $score;
+    // $scoreForTurn[$i] = $score;
     $player = $i % $numPlayers;
     $players[$player] += $score;
     // echo("Player $player scored $score on turn $i\n");
+
+    unset($removed);
   } else {
     // Add in right spot.
-    $currentMarble = $currentMarble->next;
+    $currentMarble = $marbles[$currentMarble->next];
     $newMarble = new ListNode($i);
-    $newMarble->prev = $currentMarble;
-    $newMarble->next = $currentMarble->next;
-
-    if ($currentMarble->next) {
-      $currentMarble->next->prev = $newMarble;
+    $marbles[$i] = $newMarble;
+    if ($i == 116540) {
+      echo("Set next on new marble\n");
     }
-    $currentMarble->next = $newMarble;
+    $newMarble->next = $currentMarble->next;
+    if ($i == 116540) {
+      echo("After set next\n");
+    }
+    $newMarble->prev = $currentMarble->data;
+
+    $marbles[$currentMarble->next]->prev = $newMarble->data;
+    $currentMarble->next = $newMarble->data;
     $currentMarble = $newMarble;
     $numMarbles++;
   }
-  if ($i % 10000 === 0) {
-    echo("Turn $i of $turns\n");
-    echo(memory_get_usage() . " mem\n");
-  }
 
   // Debug print.
-  // $curMarble = $firstMarble;
-  // echo($curMarble->data);
-  // for ($ii=1; $ii < $numMarbles; $ii++) {
-  //   $curMarble = $curMarble->next;
-  //   echo("," . $curMarble->data);
-  // }
-  // echo(" - " . $currentMarble->data . " $numMarbles" . "\n");
+  if ($i <= 25) {
+    $curMarble = $firstMarble;
+    echo("[" . $i % $numPlayers . "] " .$curMarble->data);
+    for ($ii=1; $ii < $numMarbles; $ii++) {
+      $curMarble = $marbles[$curMarble->next];
+      echo("," . $curMarble->data);
+    }
+    echo(" - " . $currentMarble->data . " $numMarbles" . "\n");
+  }
 
   if ($i == $turns) {
     echo("Part 1 Complete\n");
@@ -97,7 +103,12 @@ for ($i=1; $i <= $turns * 100; $i++) {
     echo("Part 1: " . $part1answer . "\n");
   }
 }
+echo ("Last Marble $i\n");
 
 arsort($players);
+// print_r($players);
 $answer = $players[key($players)];
 echo("Part 2: " . $answer . "\n");
+
+// 4993884974 is too high.
+// 3277920293 is right.
