@@ -12,10 +12,10 @@ class Player {
   public $x;
   public $y;
 
-  function __construct($type, $x, $y) {
+  function __construct($type, $x, $y, $attack) {
     $this->type = $type;
     $this->health = 200;
-    $this->attack = 3;
+    $this->attack = $attack;
     $this->x = intval($x);
     $this->y = intval($y);
   }
@@ -254,6 +254,18 @@ class Map {
     return $total;
   }
 
+  public function getElfCount() {
+    $total = 0;
+    foreach ($this->players as $y=>$row) {
+      foreach ($row as $x=>$player) {
+        if ($player->type === 'E') {
+          $total++;
+        }
+      }
+    }
+    return $total;
+  }
+
   public function printMap() {
     ksort($this->players);
     foreach ($this->grid as $y=>$row) {
@@ -275,13 +287,25 @@ class Map {
   }
 }
 
+// Part 1 This should be 3.
+// Part 2 Binary search this value to see when elves win without casulties.
+// 13 is the lowest which allows victory without a casualty.
+$elfAttack = 13;
 $grid = [];
+$elfCount = 0;
+$goblinCount = 0;
 foreach ($lines as $y=>$line) {
   $row = [];
   foreach (str_split($line) as $x => $value) {
     if ($value == 'E' || $value == "G") {
       // Add goblins and elves.
-      $players[$y][$x] = new Player($value, $x, $y);
+      if ($value == 'E') {
+        $players[$y][$x] = new Player($value, $x, $y, $elfAttack);
+        $elfCount++;
+      } else {
+        $players[$y][$x] = new Player($value, $x, $y, 3);
+        $goblinCount++;
+      }
       $value = ".";
     }
     $row[] = $value;
@@ -300,9 +324,12 @@ for ($i=1; $i <= 100; $i++) {
   if ($map->completed) {
     $value = $map->getTotalHealth() * ($i - 1);
     echo("Part 1: " . $map->getTotalHealth() . " * " . ($i - 1) . " = $value\n");
-    // 1763 * 79 = 139277 is too low.
-    // 1752 * 91 = 159432 is too low.
-    // 2555 * 90 = 229950
+    $elfCasulties = $elfCount - $map->getElfCount();
+    if ($elfCasulties === 0) {
+      echo("Part 2: elves win with " . $elfAttack . "\n");
+    } else {
+      echo("Part 2: elves lose with " . $elfAttack . "\n");
+    }
     break;
   }
 }
