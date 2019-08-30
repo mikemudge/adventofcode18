@@ -1,0 +1,95 @@
+// The instruction pointer is on register 2.
+#ip 2
+// Instructions are input A, input B, output C. r indicates register id, i is integer.
+
+// reg4 = 123;
+seti 123 0 4
+// reg4 = reg4 & 456
+bani 4 456 4
+// reg4 = 1 if reg4 == 72
+eqri 4 72 4
+// reg2 += reg4
+addr 4 2 2
+// reg2 = 0. This loops the bani test until 123 & 456 == 72.
+seti 0 0 2
+
+// 5. reg4 = 0
+seti 0 1 4
+while (true) {
+  // reg1 = reg4 | 65536 which is 1 followed by 16 0's
+  bori 4 65536 1
+
+  // 7. reg4 = 16031208
+  seti 16031208 7 4
+  while(true) {
+    // reg3 = reg1 & 255
+    bani 1 255 3
+
+    // reg4 += reg3
+    addr 4 3 4
+    // reg4 &= 16777215 which is 24 1's
+    bani 4 16777215 4
+    // reg4 *= 65899 which is 10000000101101011
+    muli 4 65899 4
+    // reg4 &= 16777215 which is 24 1's
+    bani 4 16777215 4
+
+    if (256 > reg1) {
+      break;
+    }
+    // if (256 > reg1) reg3 = 1 else reg3 = 0
+    gtir 256 1 3
+    // reg2 += reg3
+    addr 3 2 2
+    // reg2 += 1
+    addi 2 1 2
+    // reg2 = 27 which breaks;
+    seti 27 3 2
+
+    // 17. reg3 = 0
+    seti 0 9 3
+    while (true) {
+      // reg5 = reg3 + 1
+      addi 3 1 5
+      // reg5 *= 256
+      muli 5 256 5
+
+      // reg5 = 256 always?
+      if (reg5 > reg1) {
+        goto to 25 which is out of the loop;
+        break;
+      }
+      // if reg5 > reg1 reg5=1 else reg5=0
+      gtrr 5 1 5
+      // reg2 += reg5
+      addr 5 2 2
+      // reg2++ which skips the break when reg5 is 0;
+      addi 2 1 2
+      // reg2 = 25 which means break out of this loop
+      seti 25 7 2
+
+      // reg3++
+      addi 3 1 3
+
+      // 25. reg2 = 17
+      seti 17 4 2
+    }
+
+    // reg1 = reg3
+    setr 3 1 1
+
+    // 27. reg2 = 7
+    seti 7 5 2
+  }
+
+  if (reg4 == reg0) {
+    break;
+  }
+  // if (reg4 == reg0) reg3 = 1 else reg3 = 0
+  eqrr 4 0 3
+  // reg2 += reg3
+  addr 3 2 2
+
+  // reg2 = 5
+  seti 5 1 2
+}

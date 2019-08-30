@@ -1,0 +1,49 @@
+# Setup
+addi 4 2 4
+r4 += 2 # setup. r4 is 0 + 2?
+mulr 4 4 4
+r4 *= r4 # r4 = 2 * 2 = 4
+mulr 3 4 4
+r4 *= r3 # r4 = 4 * 19 = 80
+muli 4 11 4
+r4 *= 11 # r4 = 80 * 11 = 880
+addi 2 5 2
+r2 += 5 # r2 = 0 + 5
+mulr 2 3 2
+r2 *= r3 # r2 = 5 * 22 = 115
+addi 2 1 2
+r2 += 1 # r2 = 115 + 1 = 116
+addr 4 2 4
+r4 += r2 # r4 = 880 + 116 = 947
+addr 3 0 3
+if (r0 == 1 {
+  # Part 2 setup (when r0 == 1) initializes r2 much higher.
+  setr 3 6 2
+  r2 = r3 # r3 should be fixed(27) here because its the IP
+  mulr 2 3 2
+  r2 *= r3 # r3 will be 28 here.
+  addr 3 2 2
+  r2 += r3 # r3 will be 29 here.
+  mulr 3 2 2
+  r2 *= r3 # r3 will be 30 here.
+  muli 2 14 2
+  r2 *= 14 # r2 = (27 * 28 + 29) * 30 * 14
+  mulr 2 3 2
+  r2 *= r3 # r3 = 32 here. r2 = 10550400
+  addr 4 2 4
+  r4 += r2 # r4 = 10550400 + 947 = 10551347
+  seti 0 8 0
+  r0 = 0 # Now reset r0 to 0
+}
+
+r0 = 0;
+r2 = 10550400;
+r4 = 10551347;
+Calculates the sum of the factors for 10551347
+for (r1 = 1; r1 <= r4; r1++) {
+  for (r5 = 1; r5 <= r4; r5++) {
+    if (r1 * r5 == r4) {
+      r0 += r1;
+    }
+  }
+}

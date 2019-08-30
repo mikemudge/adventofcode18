@@ -1,0 +1,55 @@
+// The instruction pointer is on register 2.
+#ip 2
+// Instructions are input A, input B, output C. r indicates register id, i is integer.
+
+// reg4 = 123;
+seti 123 0 4
+// reg4 = reg4 & 456
+bani 4 456 4
+// reg4 = 1 if reg4 == 72
+eqri 4 72 4
+// reg2 += reg4
+addr 4 2 2
+// reg2 = 0. This loops the bani test until 123 & 456 == 72.
+seti 0 0 2
+
+reg4 = 0
+while (true) {
+  // 65536 is 1 followed by 16 0's
+  reg1 = reg4 | 65536 = 65536
+
+  reg4 = 16031208 which is 0b1111,0100,1001,1101,1110,1000
+  while(true) {
+    reg3 = reg1 & 255 the low order 8 bits
+    reg4 += reg3
+    reg4 = reg4 % 16777216
+    reg4 *= 65899
+    reg4 = reg4 % 16777216
+
+    if (256 > reg1) {
+      break;
+    }
+
+    // On iteration 1 reg4 = 16031208 * 65899 % 16777216 = 12838904
+    // This would increment reg3 until reg3=50151
+    // Then (reg3 + 1) * 256 = 12838912 > 12838904 and we break
+    // That makes reg1 = 12838912 for the next iteration.
+    // Repeat this until we find a reg1 below 256
+    reg3 = 0
+    while (true) {
+      // Find a reg3 which + 1 * 256 > reg1.
+      // Optimizable as floor(reg1 / 256)?
+      if ((reg3 + 1) * 256 > reg1) {
+        break;
+      }
+
+      reg3++
+    }
+
+    reg1 = reg3
+  }
+
+  if (reg4 == reg0) {
+    break;
+  }
+}
