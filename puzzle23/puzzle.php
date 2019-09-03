@@ -1,6 +1,7 @@
 <?php
 
 $filename = dirname(__FILE__) . DIRECTORY_SEPARATOR . "input";
+$filename = dirname(__FILE__) . DIRECTORY_SEPARATOR . "sample";
 $data = file_get_contents($filename);
 $lines = explode("\n", $data);
 
@@ -9,7 +10,6 @@ $maxRange;
 $maxRangeNanoBot;
 foreach($lines as $line) {
   echo($line. "\n");
-  // pos=<94956342,44391212,33450823>, r=66774038
   $parts = explode(",", substr($line, 5));
   $x = intval($parts[0]);
   $y = intval($parts[1]);
